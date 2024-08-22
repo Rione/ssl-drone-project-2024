@@ -1,25 +1,37 @@
 #include "esp_camera.h"
 #include <WiFi.h>
+#include <WebServer.h>
 
-#define CAMERA_MODEL_XIAO_ESP32S3 // Has PSRAM
-
+#define CAMERA_MODEL_XIAO_ESP32S3
 #include "camera_pins.h"
 
-// ===========================
-// Enter your WiFi credentials
-// ===========================
-const char* ssid = "TP-Link_AIOL";
-const char* password = "AIOL2018";
+#define WIFI_SSID "ESP32-softAP"    /* SSID */
+#define WIFI_PWD "12345678"           /* パスワード */
+WebServer server(80);                   /* ポート80で宣言 */
+IPAddress ip( 192, 168, 0, 1 );         /* ESP32のIPアドレス */
+IPAddress subnet( 255, 255, 255, 0 );   /* サブネットマスク */
 
 void startCameraServer();
 void setupLedFlash(int pin);
+void camera_setup();
 
 void setup() {
-  Serial.begin(115200);
-  while(!Serial);
-  Serial.setDebugOutput(true);
-  Serial.println();
+  camera_setup();
 
+  /* softAPモードに設定 */
+  WiFi.mode(WIFI_AP);
+  WiFi.softAP(WIFI_SSID, WIFI_PWD);
+  delay(100);
+  WiFi.softAPConfig(ip, ip, subnet);
+
+  startCameraServer();
+}
+
+void loop() {
+  delay(10000);
+}
+
+void camera_setup(){
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
   config.ledc_timer = LEDC_TIMER_0;
@@ -47,9 +59,7 @@ void setup() {
   config.fb_location = CAMERA_FB_IN_PSRAM;
   config.jpeg_quality = 12;
   config.fb_count = 1;
-  
-  // if PSRAM IC present, init with UXGA resolution and higher JPEG quality
-  //                      for larger pre-allocated frame buffer.
+
   if(config.pixel_format == PIXFORMAT_JPEG){
     if(psramFound()){
       config.jpeg_quality = 10;
@@ -68,7 +78,6 @@ void setup() {
 #endif
   }
 
-  // camera init
   esp_err_t err = esp_camera_init(&config);
   if (err != ESP_OK) {
     Serial.printf("Camera init failed with error 0x%x", err);
@@ -87,31 +96,10 @@ void setup() {
     s->set_framesize(s, FRAMESIZE_QVGA);
   }
 
-// Setup LED FLash if LED pin is defined in camera_pins.h
 #if defined(LED_GPIO_NUM)
   setupLedFlash(LED_GPIO_NUM);
 #endif
- 
-  WiFi.begin(ssid, password);
-  WiFi.setTxPower(WIFI_POWER_8_5dBm);
-  WiFi.setSleep(false);
-
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  
-  Serial.println("");
-  Serial.println("WiFi connected");
-
-  startCameraServer();
-
-  Serial.print("Camera Ready! Use 'http://");
-  Serial.print(WiFi.localIP());
-  Serial.println("' to connect");
 }
 
-void loop() {
-  // Do nothing. Everything is done in another task by the web server
-  delay(10000);
-}
+
+
