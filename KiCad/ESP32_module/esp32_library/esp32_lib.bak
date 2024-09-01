@@ -6,16 +6,16 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(property "Reference" "U"
-			(at 0 1.27 0)
+		(property "Reference" "M"
+			(at 0 1.016 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" ""
-			(at 2.54 -1.27 0)
+		(property "Value" "ESP32_XAIO"
+			(at -0.254 3.048 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -23,7 +23,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 2.54 -1.27 0)
+			(at 1.27 -1.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -32,7 +32,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 2.54 -1.27 0)
+			(at 1.27 -1.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41,7 +41,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 2.54 -1.27 0)
+			(at 1.27 -1.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -51,8 +51,8 @@
 		)
 		(symbol "xiao_esp32_0_1"
 			(rectangle
-				(start -7.62 0)
-				(end 7.62 -20.32)
+				(start -8.89 0)
+				(end 8.89 -20.32)
 				(stroke
 					(width 0)
 					(type default)
@@ -64,7 +64,7 @@
 		)
 		(symbol "xiao_esp32_1_1"
 			(pin bidirectional line
-				(at 10.16 -2.54 180)
+				(at 11.43 -2.54 180)
 				(length 2.54)
 				(name "5V"
 					(effects
@@ -82,7 +82,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -10.16 -7.62 0)
+				(at -11.43 -7.62 0)
 				(length 2.54)
 				(name "D2"
 					(effects
@@ -100,7 +100,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -10.16 -10.16 0)
+				(at -11.43 -10.16 0)
 				(length 2.54)
 				(name "D3"
 					(effects
@@ -118,7 +118,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -10.16 -12.7 0)
+				(at -11.43 -12.7 0)
 				(length 2.54)
 				(name "D4/SDA"
 					(effects
@@ -136,7 +136,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -10.16 -15.24 0)
+				(at -11.43 -15.24 0)
 				(length 2.54)
 				(name "D5/SCL"
 					(effects
@@ -154,7 +154,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -10.16 -17.78 0)
+				(at -11.43 -17.78 0)
 				(length 2.54)
 				(name "D6/TX"
 					(effects
@@ -172,7 +172,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at 10.16 -5.08 180)
+				(at 11.43 -5.08 180)
 				(length 2.54)
 				(name "GND"
 					(effects
@@ -190,7 +190,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at 10.16 -7.62 180)
+				(at 11.43 -7.62 180)
 				(length 2.54)
 				(name "3.3V"
 					(effects
@@ -208,7 +208,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at 10.16 -10.16 180)
+				(at 11.43 -10.16 180)
 				(length 2.54)
 				(name "D10"
 					(effects
@@ -226,7 +226,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at 10.16 -12.7 180)
+				(at 11.43 -12.7 180)
 				(length 2.54)
 				(name "D9"
 					(effects
@@ -244,7 +244,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at 10.16 -15.24 180)
+				(at 11.43 -15.24 180)
 				(length 2.54)
 				(name "D8"
 					(effects
@@ -262,7 +262,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at 10.16 -17.78 180)
+				(at 11.43 -17.78 180)
 				(length 2.54)
 				(name "D7/RX"
 					(effects
@@ -280,7 +280,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -10.16 -2.54 0)
+				(at -11.43 -2.54 0)
 				(length 2.54)
 				(name "D0"
 					(effects
@@ -298,7 +298,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -10.16 -5.08 0)
+				(at -11.43 -5.08 0)
 				(length 2.54)
 				(name "D1"
 					(effects
@@ -308,6 +308,213 @@
 					)
 				)
 				(number "9"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+	)
+	(symbol "μPA2753GR"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "FET"
+			(at 0 1.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "μPA2753GR"
+			(at 0 3.048 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at -8.89 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at -8.89 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at -8.89 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "μPA2753GR_0_1"
+			(rectangle
+				(start -8.89 0)
+				(end 8.89 -12.7)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "μPA2753GR_1_1"
+			(pin power_in line
+				(at -11.43 -2.54 0)
+				(length 2.54)
+				(name "Source_1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -11.43 -5.08 0)
+				(length 2.54)
+				(name "Gate_1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at -11.43 -7.62 0)
+				(length 2.54)
+				(name "Source_2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -11.43 -10.16 0)
+				(length 2.54)
+				(name "Gate_2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_out line
+				(at 11.43 -7.62 180)
+				(length 2.54)
+				(name "Drain_2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_out line
+				(at 11.43 -10.16 180)
+				(length 2.54)
+				(name "Drain_2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_out line
+				(at 11.43 -2.54 180)
+				(length 2.54)
+				(name "Drain_1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "7"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_out line
+				(at 11.43 -5.08 180)
+				(length 2.54)
+				(name "Drain_1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
 					(effects
 						(font
 							(size 1.27 1.27)
