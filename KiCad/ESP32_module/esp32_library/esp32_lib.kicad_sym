@@ -6,23 +6,23 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(property "Reference" "ESP32_EIAO"
-			(at 0 1.27 0)
+		(property "Reference" "M"
+			(at 0 1.016 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" ""
-			(at 1.27 -1.27 0)
+		(property "Value" "ESP32_XAIO"
+			(at -0.254 3.048 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "esp32_lib_pcb:ESP32_XIAO"
 			(at 1.27 -1.27 0)
 			(effects
 				(font
@@ -329,8 +329,8 @@
 				)
 			)
 		)
-		(property "Value" ""
-			(at -8.89 0 0)
+		(property "Value" "μPA2753GR"
+			(at 0 3.048 0)
 			(effects
 				(font
 					(size 1.27 1.27)

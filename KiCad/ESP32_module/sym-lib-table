@@ -1,5 +1,4 @@
 (sym_lib_table
   (version 7)
   (lib (name "esp32_lib")(type "KiCad")(uri "${KIPRJMOD}/esp32_library/esp32_lib.kicad_sym")(options "")(descr ""))
-  (lib (name "vl53l1x_lib")(type "KiCad")(uri "${KIPRJMOD}/vl53l1x_library/vl53l1x_lib.kicad_sym")(options "")(descr ""))
 )
