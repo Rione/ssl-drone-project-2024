@@ -497,7 +497,7 @@
       "plot": "",
       "pos_files": "",
       "specctra_dsn": "",
-      "step": "",
+      "step": "ESP32_module.step",
       "svg": "",
       "vrml": ""
     },
