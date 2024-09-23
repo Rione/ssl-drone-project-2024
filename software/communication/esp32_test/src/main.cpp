@@ -18,7 +18,7 @@ void camera_setup();
 void setup() {
   camera_setup();
 
-  /* softAPモードに設定 */ 
+  // set softAP mode 
   WiFi.mode(WIFI_AP);
   WiFi.setTxPower(WIFI_POWER_8_5dBm);
   WiFi.softAP(WIFI_SSID, WIFI_PWD);
