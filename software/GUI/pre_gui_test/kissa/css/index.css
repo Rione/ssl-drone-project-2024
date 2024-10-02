@@ -32,3 +32,64 @@
   font-size: 18px;
   margin-top: 20px;
 }
+
+.lead {
+  max-width: 1200px;
+  margin: 60px auto;
+}
+
+.lead p {
+  line-height: 2;
+  text-align: center;
+}
+
+.link-button-area {
+  text-align: center;
+  margin-top: 40px;
+}
+
+.link-button {
+  background-color: #f4dd64;
+  display: inline-block;
+  min-width: 180px;
+  line-height: 48px;
+  border-radius: 24px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+}
+
+.link-button:hover {
+  background-color: #d8b500;
+}
+
+@media (max-width: 800px) {
+  .first-view {
+    height: calc(100ch - 50px);
+    background-image: url(../images/index/bg-main-sp.jpg);
+    align-items: flex-start;
+  }
+
+  .first-view-text {
+    padding-top: 60px;
+    padding-left: 20px;
+  }
+
+  .first-view-text h1 {
+    font-size: 36px;
+    line-height: 48px;
+  }
+
+  .first-view-text p {
+    font-size: 14px;
+    margin-top: 15px;
+  }
+
+  .lead {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .lead p {
+    text-align: left;
+  }
+}
