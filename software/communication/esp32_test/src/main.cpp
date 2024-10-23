@@ -8,22 +8,19 @@
 #include "soc/soc.h"         // システムオンチップ関連の設定を扱うライブラリ
 #include "soc/rtc_cntl_reg.h"// RTC（リアルタイムクロック）制御のためのライブラリ
 #include "esp_http_server.h" // HTTPサーバー機能を扱うためのライブラリ
+#include "esp32_html.h"
 
-// WiFiの設定: ここにあなたのWiFiのSSIDとパスワードを設定
-#define WIFI_SSID "ESP32-softAP"    /* SSID */
-#define WIFI_PWD "12345678"           /* パスワード */
-WebServer server(80);                   /* ポート80で宣言 */
-IPAddress ip( 192, 168, 0, 1 );         /* ESP32のIPアドレス */
-IPAddress subnet( 255, 255, 255, 0 );   /* サブネットマスク */
+//LEDピンの定義
+#define User_LED 8
+#define Red_caution 9
+#define Ilumination 10
 
-#define PART_BOUNDARY "123456789000000000000987654321"
-
+//カメラピンの定義
 #define PWDN_GPIO_NUM     -1
 #define RESET_GPIO_NUM    -1
 #define XCLK_GPIO_NUM     10
 #define SIOD_GPIO_NUM     40
 #define SIOC_GPIO_NUM     39
-
 #define Y9_GPIO_NUM       48
 #define Y8_GPIO_NUM       11
 #define Y7_GPIO_NUM       12
@@ -36,15 +33,15 @@ IPAddress subnet( 255, 255, 255, 0 );   /* サブネットマスク */
 #define HREF_GPIO_NUM     47
 #define PCLK_GPIO_NUM     13
 
-#define LED_GPIO_NUM      21
-
-// モータードライバ用のピン設定
-#define MOTOR_1_PIN_1    14
-#define MOTOR_1_PIN_2    15
-#define MOTOR_2_PIN_1    13
-#define MOTOR_2_PIN_2    12
+// WiFiの設定
+#define WIFI_SSID "ESP32-softAP"    /* SSID */
+#define WIFI_PWD "12345678"           /* パスワード */
+WebServer server(80);                   /* ポート80で宣言 */
+IPAddress ip( 192, 168, 0, 1 );         /* ESP32のIPアドレス */
+IPAddress subnet( 255, 255, 255, 0 );   /* サブネットマスク */
 
 // ストリームの設定: カメラからの映像ストリームを扱うための設定
+#define PART_BOUNDARY "123456789000000000000987654321"
 static const char* _STREAM_CONTENT_TYPE = "multipart/x-mixed-replace;boundary=" PART_BOUNDARY;
 static const char* _STREAM_BOUNDARY = "\r\n--" PART_BOUNDARY "\r\n";
 static const char* _STREAM_PART = "Content-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n";
@@ -52,62 +49,6 @@ static const char* _STREAM_PART = "Content-Type: image/jpeg\r\nContent-Length: %
 // HTTPサーバーのハンドル（識別子）
 httpd_handle_t camera_httpd = NULL;
 httpd_handle_t stream_httpd = NULL;
-
-// HTMLコード: ESP32-CAMで撮影した映像をWebページで表示するためのHTMLコード
-// このHTMLコードには、カメラの映像を表示し、車の制御ボタン（前進、後退など）が含まれています
-static const char PROGMEM INDEX_HTML[] = R"rawliteral(
-<html>
-  <head>
-    <title>ESP32-CAM Robot</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-      body { font-family: Arial; text-align: center; margin:0px auto; padding-top: 30px;}
-      table { margin-left: auto; margin-right: auto; }
-      td { padding: 8 px; }
-      .button {
-        background-color: #2f4468;
-        border: none;
-        color: white;
-        padding: 10px 20px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 18px;
-        margin: 6px 3px;
-        cursor: pointer;
-        -webkit-touch-callout: none;
-        -webkit-user-select: none;
-        -khtml-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-        -webkit-tap-highlight-color: rgba(0,0,0,0);
-      }
-      img {  width: auto ;
-        max-width: 100% ;
-        height: auto ; 
-      }
-    </style>
-  </head>
-  <body>
-    <h1>ESP32-CAM Robot</h1>
-    <img src="" id="photo" >
-    <table>
-      <tr><td colspan="3" align="center"><button class="button" onmousedown="toggleCheckbox('forward');" ontouchstart="toggleCheckbox('forward');" onmouseup="toggleCheckbox('stop');" ontouchend="toggleCheckbox('stop');">Forward</button></td></tr>
-      <tr><td align="center"><button class="button" onmousedown="toggleCheckbox('left');" ontouchstart="toggleCheckbox('left');" onmouseup="toggleCheckbox('stop');" ontouchend="toggleCheckbox('stop');">Left</button></td><td align="center"><button class="button" onmousedown="toggleCheckbox('stop');" ontouchstart="toggleCheckbox('stop');">Stop</button></td><td align="center"><button class="button" onmousedown="toggleCheckbox('right');" ontouchstart="toggleCheckbox('right');" onmouseup="toggleCheckbox('stop');" ontouchend="toggleCheckbox('stop');">Right</button></td></tr>
-      <tr><td colspan="3" align="center"><button class="button" onmousedown="toggleCheckbox('backward');" ontouchstart="toggleCheckbox('backward');" onmouseup="toggleCheckbox('stop');" ontouchend="toggleCheckbox('stop');">Backward</button></td></tr>                   
-    </table>
-   <script>
-   function toggleCheckbox(x) {
-     var xhr = new XMLHttpRequest();
-     xhr.open("GET", "/action?go=" + x, true);
-     xhr.send();
-   }
-   window.onload = document.getElementById("photo").src = window.location.href.slice(0, -1) + ":81/stream";
-  </script>
-  </body>
-</html>
-)rawliteral";
 
 static esp_err_t index_handler(httpd_req_t *req){
   httpd_resp_set_type(req, "text/html");
@@ -208,38 +149,38 @@ static esp_err_t cmd_handler(httpd_req_t *req){
   
   if(!strcmp(variable, "forward")) {
     Serial.println("Forward");
-    digitalWrite(MOTOR_1_PIN_1, 1);
-    digitalWrite(MOTOR_1_PIN_2, 0);
-    digitalWrite(MOTOR_2_PIN_1, 1);
-    digitalWrite(MOTOR_2_PIN_2, 0);
+    // digitalWrite(MOTOR_1_PIN_1, 1);
+    // digitalWrite(MOTOR_1_PIN_2, 0);
+    // digitalWrite(MOTOR_2_PIN_1, 1);
+    // digitalWrite(MOTOR_2_PIN_2, 0);
   }
   else if(!strcmp(variable, "left")) {
     Serial.println("Left");
-    digitalWrite(MOTOR_1_PIN_1, 0);
-    digitalWrite(MOTOR_1_PIN_2, 1);
-    digitalWrite(MOTOR_2_PIN_1, 1);
-    digitalWrite(MOTOR_2_PIN_2, 0);
+    // digitalWrite(MOTOR_1_PIN_1, 0);
+    // digitalWrite(MOTOR_1_PIN_2, 1);
+    // digitalWrite(MOTOR_2_PIN_1, 1);
+    // digitalWrite(MOTOR_2_PIN_2, 0);
   }
   else if(!strcmp(variable, "right")) {
     Serial.println("Right");
-    digitalWrite(MOTOR_1_PIN_1, 1);
-    digitalWrite(MOTOR_1_PIN_2, 0);
-    digitalWrite(MOTOR_2_PIN_1, 0);
-    digitalWrite(MOTOR_2_PIN_2, 1);
+    // digitalWrite(MOTOR_1_PIN_1, 1);
+    // digitalWrite(MOTOR_1_PIN_2, 0);
+    // digitalWrite(MOTOR_2_PIN_1, 0);
+    // digitalWrite(MOTOR_2_PIN_2, 1);
   }
   else if(!strcmp(variable, "backward")) {
     Serial.println("Backward");
-    digitalWrite(MOTOR_1_PIN_1, 0);
-    digitalWrite(MOTOR_1_PIN_2, 1);
-    digitalWrite(MOTOR_2_PIN_1, 0);
-    digitalWrite(MOTOR_2_PIN_2, 1);
+    // digitalWrite(MOTOR_1_PIN_1, 0);
+    // digitalWrite(MOTOR_1_PIN_2, 1);
+    // digitalWrite(MOTOR_2_PIN_1, 0);
+    // digitalWrite(MOTOR_2_PIN_2, 1);
   }
   else if(!strcmp(variable, "stop")) {
     Serial.println("Stop");
-    digitalWrite(MOTOR_1_PIN_1, 0);
-    digitalWrite(MOTOR_1_PIN_2, 0);
-    digitalWrite(MOTOR_2_PIN_1, 0);
-    digitalWrite(MOTOR_2_PIN_2, 0);
+    // digitalWrite(MOTOR_1_PIN_1, 0);
+    // digitalWrite(MOTOR_1_PIN_2, 0);
+    // digitalWrite(MOTOR_2_PIN_1, 0);
+    // digitalWrite(MOTOR_2_PIN_2, 0);
   }
   else {
     res = -1;
@@ -286,18 +227,16 @@ void startCameraServer(){
   }
 }
 
-void setup() {
-  WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); //disable brownout detector
-  
-  pinMode(MOTOR_1_PIN_1, OUTPUT);
-  pinMode(MOTOR_1_PIN_2, OUTPUT);
-  pinMode(MOTOR_2_PIN_1, OUTPUT);
-  pinMode(MOTOR_2_PIN_2, OUTPUT);
-  
+void setup(){
+  pinMode(User_LED,OUTPUT);
+  pinMode(Red_caution,OUTPUT);
+  pinMode(Ilumination,OUTPUT);
+
+  WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);
+
   Serial.begin(9600);
   Serial.setDebugOutput(false);
-  
-  Serial.println("a");
+
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
   config.ledc_timer = LEDC_TIMER_0;
@@ -313,18 +252,17 @@ void setup() {
   config.pin_pclk = PCLK_GPIO_NUM;
   config.pin_vsync = VSYNC_GPIO_NUM;
   config.pin_href = HREF_GPIO_NUM;
-  config.pin_sscb_sda = SIOD_GPIO_NUM;
-  config.pin_sscb_scl = SIOC_GPIO_NUM;
+  config.pin_sccb_sda = SIOD_GPIO_NUM;
+  config.pin_sccb_scl = SIOC_GPIO_NUM;
   config.pin_pwdn = PWDN_GPIO_NUM;
   config.pin_reset = RESET_GPIO_NUM;
   config.xclk_freq_hz = 20000000;
   config.pixel_format = PIXFORMAT_JPEG;
-
   config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
   config.fb_location = CAMERA_FB_IN_PSRAM;
   config.jpeg_quality = 12;
   config.fb_count = 1; 
-  
+
   if(psramFound()){
     config.frame_size = FRAMESIZE_VGA;
     config.jpeg_quality = 10;
@@ -364,6 +302,7 @@ void setup() {
   startCameraServer();
 }
 
-void loop() {
-  
+void loop(){
+
 }
+
