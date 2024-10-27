@@ -12,7 +12,7 @@
 #define LED_3 PA5
 #define LED_4 PA7
 
-Adafruit_BNO055 bno = Adafruit_BNO055(-1, 0x28, &Wire);
+Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28, &Wire);
 GYRO gyro(&bno);
 
 SoftwareSerial MySerial(PB4, PB3);
@@ -35,8 +35,8 @@ void setup() {
       digitalWrite(LED_3, HIGH);
       digitalWrite(LED_4, HIGH);
 
-      Wire.setSDA(PC_7);
-      Wire.setSCL(PC_6);
+      Wire.setSDA(PC9);
+      Wire.setSCL(PA8);
       Wire.begin();
       gyro.init();
       gyro.setOffset();
