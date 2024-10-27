@@ -1,22 +1,47 @@
-#include "setup.h"
+#include "control.h"
 
 #define DEBUG
 
+void setup(void) {
+      MySerial.begin(115200);
+      while (!Serial) delay(10);
+      MySerial.println("DRONE START");
+
+      pinMode(LED_1, OUTPUT);
+      pinMode(LED_2, OUTPUT);
+      pinMode(LED_3, OUTPUT);
+      pinMode(LED_4, OUTPUT);
+      digitalWrite(LED_1, HIGH);
+      digitalWrite(LED_2, HIGH);
+      digitalWrite(LED_3, HIGH);
+      digitalWrite(LED_4, HIGH);
+
+      analogWriteFrequency(PWM_FREQ);
+
+      BnoSetup();
+
+      digitalWrite(LED_1, LOW);
+      digitalWrite(LED_2, LOW);
+      digitalWrite(LED_3, LOW);
+      digitalWrite(LED_4, LOW);
+}
+
 void loop(void) {
-      analogWrite(MOTOR_1, 100);
-      analogWrite(MOTOR_2, 100);
-      analogWrite(MOTOR_3, 100);
-      analogWrite(MOTOR_4, 100);
-      delay(1000);
-      imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+      while (1) {
+            imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+            yaw = euler.x();
+            pitch = euler.z();
+            roll = euler.y();
+            Control();
 
 #ifdef DEBUG
-      MySerial.print("X: ");
-      MySerial.print(euler.x());
-      MySerial.print(" Y: ");
-      MySerial.print(euler.y());
-      MySerial.print(" Z: ");
-      MySerial.print(euler.z());
-      MySerial.print("\t\t");
+            MySerial.print("YAW: ");
+            MySerial.print(yaw);
+            MySerial.print(" PITCH: ");
+            MySerial.print(pitch);
+            MySerial.print(" ROLL: ");
+            MySerial.print(roll);
+            MySerial.print("\n");
 #endif
+      }
 }
