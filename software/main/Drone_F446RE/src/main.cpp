@@ -18,6 +18,14 @@ void setup(void) {
 
       analogWriteFrequency(PWM_FREQ);
 
+      rollPID.SelectType(PID_TYPE);
+      rollPID.SetGain(2.5, 0, 0.25);
+      rollPID.SelectType(PID_TYPE);
+
+      pitchPID.SetGain(2.5, 0, 0.25);
+      pitchPID.SetILimit(100);
+      pitchPID.SetILimit(100);
+
       BnoSetup();
 
       digitalWrite(LED_1, LOW);
