@@ -11,27 +11,48 @@ void setup(void) {
       pinMode(LED_2, OUTPUT);
       pinMode(LED_3, OUTPUT);
       pinMode(LED_4, OUTPUT);
-      digitalWrite(LED_1, HIGH);
       digitalWrite(LED_2, HIGH);
-      digitalWrite(LED_3, HIGH);
+      delay(200);
+      digitalWrite(LED_1, HIGH);
+      delay(200);
       digitalWrite(LED_4, HIGH);
-
-      analogWriteFrequency(PWM_FREQ);
+      delay(200);
+      digitalWrite(LED_3, HIGH);
 
       rollPID.SelectType(PID_TYPE);
-      rollPID.SetGain(2.5, 0, 0.25);
+      rollPID.SetGain(0.5, 0, 0.1);
       rollPID.SelectType(PID_TYPE);
 
-      pitchPID.SetGain(2.5, 0, 0.25);
+      pitchPID.SetGain(0.5, 0, 0.1);
       pitchPID.SetILimit(100);
       pitchPID.SetILimit(100);
 
       BnoSetup();
 
-      digitalWrite(LED_1, LOW);
+      delay(2000);
+      for (uint i = 1; i <= 2; i++) {
+            analogWriteFrequency(i * 300);
+            analogWrite(MOTOR_1, 100);
+            analogWrite(MOTOR_2, 100);
+            analogWrite(MOTOR_3, 100);
+            analogWrite(MOTOR_4, 100);
+            delay(100);
+            analogWrite(MOTOR_1, 0);
+            analogWrite(MOTOR_2, 0);
+            analogWrite(MOTOR_3, 0);
+            analogWrite(MOTOR_4, 0);
+            delay(100);
+      }
+
+      analogWriteFrequency(PWM_FREQ);
+
       digitalWrite(LED_2, LOW);
-      digitalWrite(LED_3, LOW);
+      delay(200);
+      digitalWrite(LED_1, LOW);
+      delay(200);
       digitalWrite(LED_4, LOW);
+      delay(200);
+      digitalWrite(LED_3, LOW);
 }
 
 void loop(void) {

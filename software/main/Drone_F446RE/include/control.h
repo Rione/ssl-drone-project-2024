@@ -8,10 +8,10 @@
 int motor_power[4];
 
 void Control() {
-      motor_power[0] = 220;
-      motor_power[1] = 220;
-      motor_power[2] = 220;
-      motor_power[3] = 220;
+      motor_power[0] = 225;
+      motor_power[1] = 225;
+      motor_power[2] = 225;
+      motor_power[3] = 225;
 
       rollPID.Compute(roll, 0);
       pitchPID.Compute(pitch, 0);
