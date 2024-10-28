@@ -1,17 +1,21 @@
-#include "esp_camera.h"      // ESP32-CAMのカメラ機能を扱うためのライブラリ
-#include <WiFi.h>            // WiFi機能を使用するためのライブラリ
-#include "esp_timer.h"       // タイマー機能を使用するためのライブラリ
-#include "img_converters.h"  // 画像変換機能を扱うためのライブラリ
-#include "Arduino.h"         // Arduinoの基本機能を使用するためのライブラリ
-#include "fb_gfx.h"          // グラフィックス関連の機能を使用するためのライブラリ
-#include "soc/soc.h"         // システムオンチップ関連の設定を扱うライブラリ
-#include "soc/rtc_cntl_reg.h"// RTC（リアルタイムクロック）制御のためのライブラリ
-#include "esp_http_server.h" // HTTPサーバー機能を扱うためのライブラリ
+#include "esp_camera.h"      
+#include <WiFi.h>            
+#include "esp_timer.h"       
+#include "img_converters.h"  
+#include "Arduino.h"         
+#include "fb_gfx.h"          
+#include "soc/soc.h"         
+#include "soc/rtc_cntl_reg.h"
+#include "esp_http_server.h" 
+#include "gui_html.h"
+#include "gui_gz.h"
 
-// WiFiの設定: ここにあなたのWiFiのSSIDとパスワードを設定
-const char* ssid = "IODATA-3084fc-2G";
-const char* password = "9vLwm14495823";
+#define html_mode
+//#define gz_mode
 
+// WiFiの設定
+const char* ssid = "TP-Link_AIOL";
+const char* password = "AIOL2018";
 #define PART_BOUNDARY "123456789000000000000987654321"
 
 //カメラピンの定義
@@ -32,16 +36,9 @@ const char* password = "9vLwm14495823";
 #define HREF_GPIO_NUM     47
 #define PCLK_GPIO_NUM     13
 
-#define User_LED 8
-#define Red_caution 9
+#define User_LED 9
+#define Red_caution 8
 #define Ilumination 10
-
-
-// モータードライバ用のピン設定
-#define MOTOR_1_PIN_1    14
-#define MOTOR_1_PIN_2    15
-#define MOTOR_2_PIN_1    13
-#define MOTOR_2_PIN_2    12
 
 // ストリームの設定: カメラからの映像ストリームを扱うための設定
 static const char* _STREAM_CONTENT_TYPE = "multipart/x-mixed-replace;boundary=" PART_BOUNDARY;
@@ -52,66 +49,20 @@ static const char* _STREAM_PART = "Content-Type: image/jpeg\r\nContent-Length: %
 httpd_handle_t camera_httpd = NULL;
 httpd_handle_t stream_httpd = NULL;
 
-// HTMLコード: ESP32-CAMで撮影した映像をWebページで表示するためのHTMLコード
-// このHTMLコードには、カメラの映像を表示し、車の制御ボタン（前進、後退など）が含まれています
-static const char PROGMEM INDEX_HTML[] = R"rawliteral(
-<html>
-  <head>
-    <title>ESP32-CAM Robot</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-      body { font-family: Arial; text-align: center; margin:0px auto; padding-top: 30px;}
-      table { margin-left: auto; margin-right: auto; }
-      td { padding: 8 px; }
-      .button {
-        background-color: #2f4468;
-        border: none;
-        color: white;
-        padding: 10px 20px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 18px;
-        margin: 6px 3px;
-        cursor: pointer;
-        -webkit-touch-callout: none;
-        -webkit-user-select: none;
-        -khtml-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-        -webkit-tap-highlight-color: rgba(0,0,0,0);
-      }
-      img {  width: auto ;
-        max-width: 100% ;
-        height: auto ; 
-      }
-    </style>
-  </head>
-  <body>
-    <h1>ESP32-CAM Robot</h1>
-    <img src="" id="photo" >
-    <table>
-      <tr><td colspan="3" align="center"><button class="button" onmousedown="toggleCheckbox('forward');" ontouchstart="toggleCheckbox('forward');" onmouseup="toggleCheckbox('stop');" ontouchend="toggleCheckbox('stop');">Forward</button></td></tr>
-      <tr><td align="center"><button class="button" onmousedown="toggleCheckbox('left');" ontouchstart="toggleCheckbox('left');" onmouseup="toggleCheckbox('stop');" ontouchend="toggleCheckbox('stop');">Left</button></td><td align="center"><button class="button" onmousedown="toggleCheckbox('stop');" ontouchstart="toggleCheckbox('stop');">Stop</button></td><td align="center"><button class="button" onmousedown="toggleCheckbox('right');" ontouchstart="toggleCheckbox('right');" onmouseup="toggleCheckbox('stop');" ontouchend="toggleCheckbox('stop');">Right</button></td></tr>
-      <tr><td colspan="3" align="center"><button class="button" onmousedown="toggleCheckbox('backward');" ontouchstart="toggleCheckbox('backward');" onmouseup="toggleCheckbox('stop');" ontouchend="toggleCheckbox('stop');">Backward</button></td></tr>                   
-    </table>
-   <script>
-   function toggleCheckbox(x) {
-     var xhr = new XMLHttpRequest();
-     xhr.open("GET", "/action?go=" + x, true);
-     xhr.send();
-   }
-   window.onload = document.getElementById("photo").src = window.location.href.slice(0, -1) + ":81/stream";
-  </script>
-  </body>
-</html>
-)rawliteral";
-
+#ifdef html_mode
 static esp_err_t index_handler(httpd_req_t *req){
   httpd_resp_set_type(req, "text/html");
   return httpd_resp_send(req, (const char *)INDEX_HTML, strlen(INDEX_HTML));
 }
+#endif
+
+#ifdef gz_mode
+static esp_err_t index_handler(httpd_req_t *req) {
+  httpd_resp_set_type(req, "text/html");
+  httpd_resp_set_hdr(req, "Content-Encoding", "gzip");  
+  return httpd_resp_send(req, (const char *)gui_gz, gui_gz_len);
+}
+#endif
 
 static esp_err_t stream_handler(httpd_req_t *req){
   camera_fb_t * fb = NULL;
@@ -167,7 +118,6 @@ static esp_err_t stream_handler(httpd_req_t *req){
     if(res != ESP_OK){
       break;
     }
-    //Serial.printf("MJPG: %uB\n",(uint32_t)(_jpg_buf_len));
   }
   return res;
 }
@@ -207,38 +157,36 @@ static esp_err_t cmd_handler(httpd_req_t *req){
   
   if(!strcmp(variable, "forward")) {
     Serial.println("Forward");
-    digitalWrite(MOTOR_1_PIN_1, 1);
-    digitalWrite(MOTOR_1_PIN_2, 0);
-    digitalWrite(MOTOR_2_PIN_1, 1);
-    digitalWrite(MOTOR_2_PIN_2, 0);
+    digitalWrite(Red_caution,HIGH);
   }
   else if(!strcmp(variable, "left")) {
     Serial.println("Left");
-    digitalWrite(MOTOR_1_PIN_1, 0);
-    digitalWrite(MOTOR_1_PIN_2, 1);
-    digitalWrite(MOTOR_2_PIN_1, 1);
-    digitalWrite(MOTOR_2_PIN_2, 0);
+    digitalWrite(Red_caution,HIGH);
   }
   else if(!strcmp(variable, "right")) {
     Serial.println("Right");
-    digitalWrite(MOTOR_1_PIN_1, 1);
-    digitalWrite(MOTOR_1_PIN_2, 0);
-    digitalWrite(MOTOR_2_PIN_1, 0);
-    digitalWrite(MOTOR_2_PIN_2, 1);
+    digitalWrite(Red_caution,HIGH);
   }
   else if(!strcmp(variable, "backward")) {
     Serial.println("Backward");
-    digitalWrite(MOTOR_1_PIN_1, 0);
-    digitalWrite(MOTOR_1_PIN_2, 1);
-    digitalWrite(MOTOR_2_PIN_1, 0);
-    digitalWrite(MOTOR_2_PIN_2, 1);
+    digitalWrite(Red_caution,HIGH);
+  }
+  else if(!strcmp(variable, "up")) {
+    Serial.println("up");
+    digitalWrite(User_LED,HIGH);
+  }
+  else if(!strcmp(variable, "down")) {
+    Serial.println("down");
+    digitalWrite(User_LED,HIGH);
+  }
+  else if(!strcmp(variable, "nutral")) {
+    Serial.println("nutral");
+    digitalWrite(User_LED,HIGH);
   }
   else if(!strcmp(variable, "stop")) {
     Serial.println("Stop");
-    digitalWrite(MOTOR_1_PIN_1, 0);
-    digitalWrite(MOTOR_1_PIN_2, 0);
-    digitalWrite(MOTOR_2_PIN_1, 0);
-    digitalWrite(MOTOR_2_PIN_2, 0);
+    digitalWrite(Red_caution,LOW);
+    digitalWrite(User_LED,LOW);
   }
   else {
     res = -1;
@@ -285,23 +233,12 @@ void startCameraServer(){
   }
 }
 
-int tx_power; 
-
 void setup() {
   pinMode(User_LED,OUTPUT);
   pinMode(Red_caution,OUTPUT);
   pinMode(Ilumination,OUTPUT);
-  digitalWrite(User_LED,LOW);
-  digitalWrite(Red_caution,LOW);
-  digitalWrite(Ilumination,LOW);
-
 
   WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); //disable brownout detector
-  
-  pinMode(MOTOR_1_PIN_1, OUTPUT);
-  pinMode(MOTOR_1_PIN_2, OUTPUT);
-  pinMode(MOTOR_2_PIN_1, OUTPUT);
-  pinMode(MOTOR_2_PIN_2, OUTPUT);
   
   Serial.begin(115200);
   Serial.setDebugOutput(false);
@@ -330,11 +267,11 @@ void setup() {
   
   if(psramFound()){
     config.frame_size = FRAMESIZE_VGA;
-    config.jpeg_quality = 10;
+    config.jpeg_quality = 20;
     config.fb_count = 2;
   } else {
     config.frame_size = FRAMESIZE_SVGA;
-    config.jpeg_quality = 12;
+    config.jpeg_quality = 20;
     config.fb_count = 1;
   }
   
@@ -344,19 +281,14 @@ void setup() {
     Serial.printf("Camera init failed with error 0x%x", err);
     return;
   }
+
   //Wi-Fi connection
-  // WiFi.setTxPower(WIFI_POWER_17dBm);
-  // WiFi.begin(ssid, password);
-  // while (WiFi.status() != WL_CONNECTED) {
-  //   delay(500);
-  //   Serial.print(".");
-  //   WiFi.disconnect();
-  // }
-  // Serial.println("");
-  // Serial.println("WiFi connected");
-  
+  int tx_power; 
+
   tx_power = WiFi.getTxPower(); // デフォルトの送信出力取得 19.5dBmだと78
   Serial.printf("\nDefault TxPower: %d\n", tx_power);
+
+  digitalWrite(User_LED,HIGH);
   
   for(;;){
     if (tx_power >= 20) {         // ループする送信出力値 20だと5dBm
@@ -371,6 +303,11 @@ void setup() {
       if (i > 10) {
         Serial.println("Fail!");
         WiFi.disconnect();
+        digitalWrite(Red_caution,HIGH);
+        delay(500);
+        digitalWrite(User_LED,LOW);
+        digitalWrite(Red_caution,LOW);
+        delay(500);
       }
       else{
         Serial.println("Success!");
@@ -382,11 +319,17 @@ void setup() {
   Serial.print("Camera Stream Ready! Go to: http://");
   Serial.println(WiFi.localIP());
   
+  digitalWrite(User_LED,HIGH);
+
   // Start streaming web server
   startCameraServer();
+
+  digitalWrite(Red_caution,HIGH);
+  delay(500);
+  digitalWrite(Red_caution,LOW);
+  digitalWrite(User_LED,LOW);
 }
 
 void loop() {
-  
-  
+  delay(100);
 }
