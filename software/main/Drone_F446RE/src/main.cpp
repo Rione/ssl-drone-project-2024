@@ -1,6 +1,6 @@
 #include "control.h"
 
-#define DEBUG
+// #define DEBUG
 
 void setup(void) {
       MySerial.begin(115200);
@@ -20,11 +20,11 @@ void setup(void) {
       digitalWrite(LED_3, HIGH);
 
       rollPID.SelectType(PID_TYPE);
-      rollPID.SetGain(0.5, 0, 0.1);
-      rollPID.SelectType(PID_TYPE);
+      rollPID.SetGain(0.5, 0, 0.25);
+      rollPID.SetILimit(100);
 
-      pitchPID.SetGain(0.5, 0, 0.1);
-      pitchPID.SetILimit(100);
+      pitchPID.SelectType(PID_TYPE);
+      pitchPID.SetGain(0.5, 0, 0.25);
       pitchPID.SetILimit(100);
 
       BnoSetup();
