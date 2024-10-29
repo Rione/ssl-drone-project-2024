@@ -10,8 +10,8 @@
 #include "gui_html.h"
 #include "gui_gz.h"
 
-//#define html_mode
-#define gz_mode
+#define html_mode
+//#define gz_mode
 
 // WiFiの設定
 const char* ssid = "TP-Link_AIOL";
@@ -334,26 +334,26 @@ void setup() {
   // Start streaming web server
   startCameraServer();
 
-  // digitalWrite(Ilumination,HIGH);
-  // delay(1000);
+  digitalWrite(Ilumination,HIGH);
+  delay(1000);
   digitalWrite(Red_caution,HIGH);
   delay(1000);
   digitalWrite(User_LED,HIGH);
   delay(1000);
 
-  // digitalWrite(Ilumination,LOW);
+  digitalWrite(Ilumination,LOW);
   digitalWrite(Red_caution,LOW);
 }
 
 void loop() {
-  // digitalWrite(Ilumination,HIGH);
-  // delay(100);
-  // digitalWrite(Ilumination,LOW);
-  // delay(100);
-  // digitalWrite(Ilumination,HIGH);
-  // delay(100);
-  // digitalWrite(Ilumination,LOW);
-  // delay(2000);
+  digitalWrite(Ilumination,HIGH);
+  delay(100);
+  digitalWrite(Ilumination,LOW);
+  delay(100);
+  digitalWrite(Ilumination,HIGH);
+  delay(100);
+  digitalWrite(Ilumination,LOW);
+  delay(2000);
   digitalWrite(Red_caution,HIGH);
   delay(100);
   digitalWrite(Red_caution,LOW);
