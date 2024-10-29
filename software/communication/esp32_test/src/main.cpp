@@ -10,8 +10,8 @@
 #include "gui_html.h"
 #include "gui_gz.h"
 
-#define html_mode
-//#define gz_mode
+//#define html_mode
+#define gz_mode
 
 // WiFiの設定
 const char* ssid = "TP-Link_AIOL";
@@ -38,7 +38,7 @@ const char* password = "AIOL2018";
 
 #define User_LED 9
 #define Red_caution 8
-#define Ilumination 10
+#define Ilumination 7
 
 // ストリームの設定: カメラからの映像ストリームを扱うための設定
 static const char* _STREAM_CONTENT_TYPE = "multipart/x-mixed-replace;boundary=" PART_BOUNDARY;
@@ -82,7 +82,7 @@ static esp_err_t stream_handler(httpd_req_t *req){
       Serial.println("Camera capture failed");
       res = ESP_FAIL;
     } else {
-      if(fb->width > 400){
+      if(fb->width > 200){
         if(fb->format != PIXFORMAT_JPEG){
           bool jpeg_converted = frame2jpg(fb, 80, &_jpg_buf, &_jpg_buf_len);
           esp_camera_fb_return(fb);
@@ -238,6 +238,8 @@ void setup() {
   pinMode(Red_caution,OUTPUT);
   pinMode(Ilumination,OUTPUT);
 
+  digitalWrite(User_LED,HIGH);
+
   WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); //disable brownout detector
   
   Serial.begin(115200);
@@ -266,11 +268,11 @@ void setup() {
   config.pixel_format = PIXFORMAT_JPEG; 
   
   if(psramFound()){
-    config.frame_size = FRAMESIZE_VGA;
+    config.frame_size = FRAMESIZE_QVGA;
     config.jpeg_quality = 20;
     config.fb_count = 2;
   } else {
-    config.frame_size = FRAMESIZE_SVGA;
+    config.frame_size = FRAMESIZE_QVGA;
     config.jpeg_quality = 20;
     config.fb_count = 1;
   }
@@ -287,8 +289,6 @@ void setup() {
 
   tx_power = WiFi.getTxPower(); // デフォルトの送信出力取得 19.5dBmだと78
   Serial.printf("\nDefault TxPower: %d\n", tx_power);
-
-  digitalWrite(User_LED,HIGH);
   
   for(;;){
     if (tx_power >= 20) {         // ループする送信出力値 20だと5dBm
@@ -299,15 +299,25 @@ void setup() {
       while (WiFi.status() != WL_CONNECTED) {
         delay(1000);
         if (++i > 10) break;      // 約20秒接続試行して繋がらなかったら
+        digitalWrite(User_LED,HIGH);
+        delay(100);
+        digitalWrite(User_LED,LOW);
+        delay(100);
+
       }
       if (i > 10) {
         Serial.println("Fail!");
+
         WiFi.disconnect();
+
         digitalWrite(Red_caution,HIGH);
-        delay(500);
-        digitalWrite(User_LED,LOW);
+        delay(200);
         digitalWrite(Red_caution,LOW);
-        delay(500);
+        delay(100);
+        digitalWrite(Red_caution,HIGH);
+        delay(200);
+        digitalWrite(Red_caution,LOW);
+        delay(100);
       }
       else{
         Serial.println("Success!");
@@ -319,17 +329,38 @@ void setup() {
   Serial.print("Camera Stream Ready! Go to: http://");
   Serial.println(WiFi.localIP());
   
-  digitalWrite(User_LED,HIGH);
+  digitalWrite(User_LED,LOW);
 
   // Start streaming web server
   startCameraServer();
 
+  // digitalWrite(Ilumination,HIGH);
+  // delay(1000);
   digitalWrite(Red_caution,HIGH);
-  delay(500);
+  delay(1000);
+  digitalWrite(User_LED,HIGH);
+  delay(1000);
+
+  // digitalWrite(Ilumination,LOW);
   digitalWrite(Red_caution,LOW);
-  digitalWrite(User_LED,LOW);
 }
 
 void loop() {
+  // digitalWrite(Ilumination,HIGH);
+  // delay(100);
+  // digitalWrite(Ilumination,LOW);
+  // delay(100);
+  // digitalWrite(Ilumination,HIGH);
+  // delay(100);
+  // digitalWrite(Ilumination,LOW);
+  // delay(2000);
+  digitalWrite(Red_caution,HIGH);
   delay(100);
+  digitalWrite(Red_caution,LOW);
+  delay(100);
+  digitalWrite(Red_caution,HIGH);
+  delay(100);
+  digitalWrite(Red_caution,LOW);
+  delay(2000);
+
 }
